@@ -1,0 +1,15 @@
+# github.com/bwmarrin/discordgo v0.22.0
+github.com/bwmarrin/discordgo
+# github.com/gorilla/websocket v1.4.0
+github.com/gorilla/websocket
+# github.com/rs/zerolog v1.19.0
+github.com/rs/zerolog
+github.com/rs/zerolog/internal/cbor
+github.com/rs/zerolog/internal/json
+# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+golang.org/x/crypto/internal/subtle
+golang.org/x/crypto/nacl/secretbox
+golang.org/x/crypto/poly1305
+golang.org/x/crypto/salsa20/salsa
+# golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
+golang.org/x/sys/cpu
