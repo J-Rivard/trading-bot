@@ -31,7 +31,7 @@ func (b *Bot) handleCommand(msg *discordgo.MessageCreate) {
 			if len(tokenized) < 3 {
 				return
 			}
-			ticker := tokenized[1]
+			ticker := strings.ToUpper(tokenized[1])
 			quantity := tokenized[2]
 
 			quantityFloat, err := strconv.ParseFloat(quantity, 64)
@@ -40,21 +40,13 @@ func (b *Bot) handleCommand(msg *discordgo.MessageCreate) {
 				return
 			}
 
-			b.BuyStock(msg.Author.ID, ticker, quantityFloat)
+			user, err := b.BuyStock(msg.Author.ID, ticker, quantityFloat)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-			// stock, err := b.stockAPI.GetStockData(ticker)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return
-			// }
-
-			// quantityFloat, err := strconv.ParseFloat(quantity, 64)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return
-			// }
-
-			// b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Confirmed, total cost: $%.2f", stock.Current*quantityFloat))
+			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
 
 		case Sell:
 			if len(tokenized) < 3 {

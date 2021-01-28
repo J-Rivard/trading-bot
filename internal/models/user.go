@@ -5,18 +5,13 @@ type User struct {
 	LiquidValue float64
 	AssetValue  float64
 	TotalValue  float64
-	StockData   []*UserStockData
-}
-
-type UserStockData struct {
-	Ticker   string
-	Quantity float64
+	StockData   map[string]float64
 }
 
 func NewUser(id string) *User {
 	return &User{
 		ID:          id,
 		LiquidValue: 100000,
-		StockData:   []*UserStockData{},
+		StockData:   make(map[string]float64),
 	}
 }

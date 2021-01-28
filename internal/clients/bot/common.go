@@ -13,6 +13,7 @@ type IStockAPI interface {
 type IDatabase interface {
 	SubscribeUser(user *models.User) error
 	GetUser(id string) (*models.User, error)
+	UpdateUser(user *models.User) error
 }
 
 type Bot struct {
