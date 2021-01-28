@@ -1,15 +1,25 @@
 package bot
 
 import (
-	"github.com/J-Rivard/trading-bot/internal/clients/db"
 	"github.com/J-Rivard/trading-bot/internal/logging"
+	"github.com/J-Rivard/trading-bot/internal/models"
 	"github.com/bwmarrin/discordgo"
 )
+
+type IStockAPI interface {
+	GetStockData(ticker string) (*models.Stock, error)
+}
+
+type IDatabase interface {
+	SubscribeUser(user *models.User) error
+	GetUser(id string) (*models.User, error)
+}
 
 type Bot struct {
 	Client   *discordgo.Session
 	Log      *logging.Log
-	Database *db.DB
+	Database IDatabase
+	stockAPI IStockAPI
 }
 
 type Parameters struct {
@@ -20,7 +30,7 @@ const (
 	stonksChannelID = "804114998275604511"
 )
 
-func New(params *Parameters, database *db.DB, log *logging.Log) (*Bot, error) {
+func New(params *Parameters, stockAPI IStockAPI, database IDatabase, log *logging.Log) (*Bot, error) {
 	dg, err := discordgo.New("Bot " + params.Token)
 	if err != nil {
 		return nil, err
@@ -30,6 +40,7 @@ func New(params *Parameters, database *db.DB, log *logging.Log) (*Bot, error) {
 		Client:   dg,
 		Log:      log,
 		Database: database,
+		stockAPI: stockAPI,
 	}, nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/J-Rivard/trading-bot/internal/clients/db"
+	"github.com/J-Rivard/trading-bot/internal/clients/stockapi"
 
 	"github.com/J-Rivard/trading-bot/internal/clients/bot"
 	"github.com/J-Rivard/trading-bot/internal/config"
@@ -36,9 +37,15 @@ func main() {
 		})
 	}
 
-	go database.UpdateEvents()
+	stockAPI, err := stockapi.New(cfg.StockAPIPArams, logger)
+	if err != nil {
+		logger.LogFatal(logging.FormattedLog{
+			"action": "startup",
+			"error":  err.Error(),
+		})
+	}
 
-	bot, err := bot.New(cfg.BotParams, database, logger)
+	bot, err := bot.New(cfg.BotParams, stockAPI, database, logger)
 	if err != nil {
 		logger.LogFatal(logging.FormattedLog{
 			"action": "startup",
