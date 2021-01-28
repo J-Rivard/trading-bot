@@ -25,8 +25,12 @@ func (b *Bot) BuyStock(userID, ticker string, quantity float64) (*models.User, e
 	}
 
 	user.LiquidValue -= totalCost
-	user.AssetValue += totalCost
 	user.StockData[ticker] += quantity
+
+	user.AssetValue, err = b.stockAPI.CalculateUserValue(user)
+	if err != nil {
+		return nil, err
+	}
 
 	err = b.Database.UpdateUser(user)
 	if err != nil {

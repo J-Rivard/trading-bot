@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -28,21 +29,15 @@ func (b *Bot) handleCommand(msg *discordgo.MessageCreate) {
 
 		switch strings.ToUpper(command) {
 		case Buy:
-			if len(tokenized) < 3 {
-				return
-			}
-			ticker := strings.ToUpper(tokenized[1])
-			quantity := tokenized[2]
-
-			quantityFloat, err := strconv.ParseFloat(quantity, 64)
+			ticker, quantityFloat, err := extractTickerQuantity(tokenized)
 			if err != nil {
-				fmt.Println(err)
+				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
 				return
 			}
 
 			user, err := b.BuyStock(msg.Author.ID, ticker, quantityFloat)
 			if err != nil {
-				fmt.Println(err)
+				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
 				return
 			}
 
@@ -58,11 +53,41 @@ func (b *Bot) handleCommand(msg *discordgo.MessageCreate) {
 		case Join:
 			err := b.SubscribeUser(msg.Author.ID)
 			if err != nil {
-				fmt.Println(err)
+				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
 				return
 			}
 
 			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Welcome to the club %s, here 100k for some tendies", msg.Author.Username))
+
+		case Stats:
+			user, err := b.Database.GetUser(msg.Author.ID)
+			if err != nil {
+				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				return
+			}
+
+			assetVal, err := b.stockAPI.CalculateUserValue(user)
+			if err != nil {
+				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				return
+			}
+
+			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Current valuation: %.2f", user.LiquidValue+assetVal))
 		}
 	}
+}
+
+func extractTickerQuantity(tokenized []string) (string, float64, error) {
+	if len(tokenized) < 3 {
+		return "", 0, errors.New("Not enough args")
+	}
+	ticker := strings.ToUpper(tokenized[1])
+	quantity := tokenized[2]
+
+	quantityFloat, err := strconv.ParseFloat(quantity, 64)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return ticker, quantityFloat, nil
 }

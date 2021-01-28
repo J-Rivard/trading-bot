@@ -9,6 +9,7 @@ const (
 	Buy    = "BUY"
 	Sell   = "SELL"
 	Join   = "JOIN"
+	Stats  = "STATS"
 )
 
 // This function will be called every time a new

@@ -8,6 +8,7 @@ import (
 
 type IStockAPI interface {
 	GetStockData(ticker string) (*models.Stock, error)
+	CalculateUserValue(user *models.User) (float64, error)
 }
 
 type IDatabase interface {

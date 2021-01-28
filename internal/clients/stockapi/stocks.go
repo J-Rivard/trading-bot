@@ -35,3 +35,18 @@ func (s *StockAPI) GetStockData(ticker string) (*models.Stock, error) {
 
 	return &stock, nil
 }
+
+func (s *StockAPI) CalculateUserValue(user *models.User) (float64, error) {
+	var totalAssetValue float64
+
+	for k, v := range user.StockData {
+		stock, err := s.GetStockData(k)
+		if err != nil {
+			return 0, err
+		}
+
+		totalAssetValue += (stock.Current * v)
+	}
+
+	return totalAssetValue, nil
+}
