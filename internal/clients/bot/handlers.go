@@ -10,6 +10,7 @@ const (
 	Sell   = "SELL"
 	Join   = "JOIN"
 	Stats  = "STATS"
+	Help   = "HELP"
 )
 
 // This function will be called every time a new
