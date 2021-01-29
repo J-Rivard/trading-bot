@@ -1,6 +1,6 @@
 # trading-bot Discord Bot
 
-## This is a discord bot written in go with the purpose of filtering out the unwanted UQ events in pso2.
+## This is a discord bot written in go with the purpose of simulating stock trading
 
 ## Dependencies
 * Postgres - I recommend using docker to host a local instance, https://hub.docker.com/_/postgres
@@ -10,6 +10,7 @@
 The following env vars are needed to run
 ```
 export BotToken=*
+export StockAPIToken=*
 
 export db_user=postgres
 export db_pw=*
@@ -22,6 +23,6 @@ Be sure to fill in the * with relevant fields for your environment
 Once the appropriate environment variables are exported, simply run `go run cmd/trading-bot/main.go`
 
 ### Postgres
-You will also need postgres running, with the `trading-bot.sql` file configuration ran.
+You will also need postgres running, with the `trading_bot.sql` file configuration ran.
 
 ## Usage
