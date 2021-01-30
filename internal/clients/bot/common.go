@@ -29,7 +29,8 @@ type Parameters struct {
 }
 
 const (
-	stonksChannelID = "804809948583559220"
+	stonksChannelID    = "804809948583559220"
+	stonksDevChannelID = "804911890484428830"
 )
 
 func New(params *Parameters, stockAPI IStockAPI, database IDatabase, log *logging.Log) (*Bot, error) {

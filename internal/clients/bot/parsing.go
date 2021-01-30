@@ -10,7 +10,7 @@ import (
 )
 
 func (b *Bot) handleCommand(msg *discordgo.MessageCreate) {
-	if msg.ChannelID != stonksChannelID {
+	if !(msg.ChannelID == stonksChannelID || msg.ChannelID == stonksDevChannelID) {
 		return
 	}
 
@@ -31,69 +31,67 @@ func (b *Bot) handleCommand(msg *discordgo.MessageCreate) {
 		case Buy:
 			ticker, quantityFloat, err := extractTickerQuantity(tokenized)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 
 			user, err := b.BuyStock(msg.Author.ID, ticker, quantityFloat)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 
-			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
+			b.Client.ChannelMessageSend(msg.ChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
 
 		case Sell:
 			ticker, quantityFloat, err := extractTickerQuantity(tokenized)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 
 			user, err := b.SellStock(msg.Author.ID, ticker, quantityFloat)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 
-			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
+			b.Client.ChannelMessageSend(msg.ChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
 		case Join:
 			err := b.SubscribeUser(msg.Author.ID)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 
-			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Welcome to the club %s, here 100k for some tendies", msg.Author.Username))
+			b.Client.ChannelMessageSend(msg.ChannelID, fmt.Sprintf("Welcome to the club %s, here 100k for some tendies", msg.Author.Username))
 
 		case Stats:
 			user, err := b.Database.GetUser(msg.Author.ID)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 
 			assetVal, err := b.stockAPI.CalculateUserValue(user)
 			if err != nil {
-				b.Client.ChannelMessageSend(stonksChannelID, err.Error())
+				b.Client.ChannelMessageSend(msg.ChannelID, err.Error())
 				return
 			}
 			b.Database.UpdateUser(user)
-
-			fmt.Println(assetVal)
 
 			stockString := ""
 			for k, v := range user.StockData {
 				stockString += fmt.Sprintf("%s: %.2f\n", k, v)
 			}
 
-			b.Client.ChannelMessageSend(stonksChannelID, fmt.Sprintf("Current valuation: %.2f\n"+
+			b.Client.ChannelMessageSend(msg.ChannelID, fmt.Sprintf("Current valuation: %.2f\n"+
 				fmt.Sprintf("Liquidity: %.2f\n", user.LiquidValue)+
 				"Stocks:\n"+
 				stockString,
 				user.LiquidValue+assetVal))
 		case Help:
-			b.Client.ChannelMessageSend(stonksChannelID, "Available commands:\n"+
+			b.Client.ChannelMessageSend(msg.ChannelID, "Available commands:\n"+
 				"!join\n"+
 				"!buy <ticker> <quantity>\n"+
 				"!sell <ticker> <quantity>\n"+
