@@ -53,7 +53,7 @@ type BotPipeline struct {
 	wgHelp   *sync.WaitGroup
 }
 
-func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, log *logging.Log) (*BotPipeline, error) {
+func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *discordgo.MessageCreate, log *logging.Log) (*BotPipeline, error) {
 
 	return &BotPipeline{
 		botClient: botClient,
@@ -61,7 +61,7 @@ func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, log *logging.Lo
 		db:        db,
 		logger:    log,
 
-		validateChan: make(chan *discordgo.MessageCreate),
+		validateChan: inbound,
 		wgValidate:   &sync.WaitGroup{},
 
 		parseChan: make(chan *discordgo.MessageCreate),

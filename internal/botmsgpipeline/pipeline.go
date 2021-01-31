@@ -82,14 +82,30 @@ func (b *BotPipeline) buyShares() {
 		ticker, quantityFloat, err := extractTickerQuantity(tokenized)
 		if err != nil {
 			b.botClient.SendMessage(msg.ChannelID, err.Error())
-			return
+			continue
 		}
 
-		user, err := b.BuyStock(msg.Author.ID, ticker, quantityFloat)
+		user, err := b.db.GetUser(msg.Author.ID)
 		if err != nil {
 			b.botClient.SendMessage(msg.ChannelID, err.Error())
-			return
+			continue
 		}
+
+		stock, err := b.stockAPI.GetStockData(ticker)
+		if err != nil {
+			b.botClient.SendMessage(msg.ChannelID, err.Error())
+			continue
+		}
+
+		totalCost := stock.Current * quantityFloat
+
+		if totalCost > user.LiquidValue {
+			b.botClient.SendMessage(msg.ChannelID, "Not enough liquidity")
+			continue
+		}
+
+		user.LiquidValue -= totalCost
+		user.StockData[ticker] += quantityFloat
 
 		b.botClient.SendMessage(msg.ChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
 	}

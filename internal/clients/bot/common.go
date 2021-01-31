@@ -20,18 +20,12 @@ type IDatabase interface {
 type Bot struct {
 	Client   *discordgo.Session
 	Log      *logging.Log
-	Database IDatabase
-	stockAPI IStockAPI
+	outbound chan *discordgo.MessageCreate
 }
 
 type Parameters struct {
 	Token string
 }
-
-const (
-	stonksChannelID    = "804809948583559220"
-	stonksDevChannelID = "804911890484428830"
-)
 
 func New(params *Parameters, stockAPI IStockAPI, database IDatabase, log *logging.Log) (*Bot, error) {
 	dg, err := discordgo.New("Bot " + params.Token)
@@ -42,8 +36,7 @@ func New(params *Parameters, stockAPI IStockAPI, database IDatabase, log *loggin
 	return &Bot{
 		Client:   dg,
 		Log:      log,
-		Database: database,
-		stockAPI: stockAPI,
+		outbound: make(chan *discordgo.MessageCreate),
 	}, nil
 }
 
