@@ -5,8 +5,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/J-Rivard/trading-bot/internal/botmsgpipeline"
 	"github.com/J-Rivard/trading-bot/internal/clients/db"
 	"github.com/J-Rivard/trading-bot/internal/clients/stockapi"
+	"github.com/bwmarrin/discordgo"
 
 	"github.com/J-Rivard/trading-bot/internal/clients/bot"
 	"github.com/J-Rivard/trading-bot/internal/config"
@@ -45,7 +47,17 @@ func main() {
 		})
 	}
 
-	bot, err := bot.New(cfg.BotParams, stockAPI, database, logger)
+	discordChannel := make(chan *discordgo.MessageCreate)
+
+	bot, err := bot.New(cfg.BotParams, discordChannel, stockAPI, database, logger)
+	if err != nil {
+		logger.LogFatal(logging.FormattedLog{
+			"action": "startup",
+			"error":  err.Error(),
+		})
+	}
+
+	botPipeline, err := botmsgpipeline.New(bot, stockAPI, database, discordChannel, logger)
 	if err != nil {
 		logger.LogFatal(logging.FormattedLog{
 			"action": "startup",
@@ -60,6 +72,8 @@ func main() {
 			"error":  err.Error(),
 		})
 	}
+
+	go botPipeline.Start()
 
 	logger.LogApplication(logging.FormattedLog{
 		"action":   "startup",
