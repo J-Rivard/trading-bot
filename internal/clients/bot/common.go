@@ -27,7 +27,7 @@ type Parameters struct {
 	Token string
 }
 
-func New(params *Parameters, stockAPI IStockAPI, database IDatabase, log *logging.Log) (*Bot, error) {
+func New(params *Parameters, outbound chan *discordgo.MessageCreate, stockAPI IStockAPI, database IDatabase, log *logging.Log) (*Bot, error) {
 	dg, err := discordgo.New("Bot " + params.Token)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func New(params *Parameters, stockAPI IStockAPI, database IDatabase, log *loggin
 	return &Bot{
 		Client:   dg,
 		Log:      log,
-		outbound: make(chan *discordgo.MessageCreate),
+		outbound: outbound,
 	}, nil
 }
 

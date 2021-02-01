@@ -28,29 +28,37 @@ type BotPipeline struct {
 	db        IDatabase
 	logger    *logging.Log
 
-	validateChan chan *discordgo.MessageCreate
-	wgValidate   *sync.WaitGroup
+	validateChan    chan *discordgo.MessageCreate
+	wgValidate      *sync.WaitGroup
+	validateWorkers int
 
-	parseChan chan *discordgo.MessageCreate
-	wgParse   *sync.WaitGroup
+	parseChan    chan *discordgo.MessageCreate
+	wgParse      *sync.WaitGroup
+	parseWorkers int
 
-	buySharesChan chan *discordgo.MessageCreate
-	wgBuyShares   *sync.WaitGroup
+	buySharesChan    chan *discordgo.MessageCreate
+	wgBuyShares      *sync.WaitGroup
+	buySharesWorkers int
 
-	buyMoneyChan chan *discordgo.MessageCreate
-	wgBuyMoney   *sync.WaitGroup
+	buyMoneyChan    chan *discordgo.MessageCreate
+	wgBuyMoney      *sync.WaitGroup
+	buyMoneyWorkers int
 
-	sellSharesChan chan *discordgo.MessageCreate
-	wgSellShares   *sync.WaitGroup
+	sellSharesChan    chan *discordgo.MessageCreate
+	wgSellShares      *sync.WaitGroup
+	sellSharesWorkers int
 
-	statsChan chan *discordgo.MessageCreate
-	wgStats   *sync.WaitGroup
+	statsChan    chan *discordgo.MessageCreate
+	wgStats      *sync.WaitGroup
+	statsWorkers int
 
-	joinChan chan *discordgo.MessageCreate
-	wgJoin   *sync.WaitGroup
+	joinChan    chan *discordgo.MessageCreate
+	wgJoin      *sync.WaitGroup
+	joinWorkers int
 
-	helpChan chan *discordgo.MessageCreate
-	wgHelp   *sync.WaitGroup
+	helpChan    chan *discordgo.MessageCreate
+	wgHelp      *sync.WaitGroup
+	helpWorkers int
 }
 
 func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *discordgo.MessageCreate, log *logging.Log) (*BotPipeline, error) {
@@ -61,28 +69,36 @@ func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *d
 		db:        db,
 		logger:    log,
 
-		validateChan: inbound,
-		wgValidate:   &sync.WaitGroup{},
+		validateChan:    inbound,
+		wgValidate:      &sync.WaitGroup{},
+		validateWorkers: 10,
 
-		parseChan: make(chan *discordgo.MessageCreate),
-		wgParse:   &sync.WaitGroup{},
+		parseChan:    make(chan *discordgo.MessageCreate),
+		wgParse:      &sync.WaitGroup{},
+		parseWorkers: 10,
 
-		buySharesChan: make(chan *discordgo.MessageCreate),
-		wgBuyShares:   &sync.WaitGroup{},
+		buySharesChan:    make(chan *discordgo.MessageCreate),
+		wgBuyShares:      &sync.WaitGroup{},
+		buySharesWorkers: 10,
 
-		buyMoneyChan: make(chan *discordgo.MessageCreate),
-		wgBuyMoney:   &sync.WaitGroup{},
+		buyMoneyChan:    make(chan *discordgo.MessageCreate),
+		wgBuyMoney:      &sync.WaitGroup{},
+		buyMoneyWorkers: 10,
 
-		sellSharesChan: make(chan *discordgo.MessageCreate),
-		wgSellShares:   &sync.WaitGroup{},
+		sellSharesChan:    make(chan *discordgo.MessageCreate),
+		wgSellShares:      &sync.WaitGroup{},
+		sellSharesWorkers: 10,
 
-		statsChan: make(chan *discordgo.MessageCreate),
-		wgStats:   &sync.WaitGroup{},
+		statsChan:    make(chan *discordgo.MessageCreate),
+		wgStats:      &sync.WaitGroup{},
+		statsWorkers: 10,
 
-		joinChan: make(chan *discordgo.MessageCreate),
-		wgJoin:   &sync.WaitGroup{},
+		joinChan:    make(chan *discordgo.MessageCreate),
+		wgJoin:      &sync.WaitGroup{},
+		joinWorkers: 10,
 
-		helpChan: make(chan *discordgo.MessageCreate),
-		wgHelp:   &sync.WaitGroup{},
+		helpChan:    make(chan *discordgo.MessageCreate),
+		wgHelp:      &sync.WaitGroup{},
+		helpWorkers: 10,
 	}, nil
 }

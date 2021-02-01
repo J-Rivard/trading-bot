@@ -2,14 +2,13 @@ package botmsgpipeline
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 )
 
 const (
 	Prefix    = "!"
-	BuyShares = "BUYSHARES"
+	BuyShares = "BUY"
 	BuyMoney  = "BUYMONEY"
 	Sell      = "SELL"
 	Join      = "JOIN"
@@ -21,6 +20,45 @@ const (
 )
 
 func (b *BotPipeline) Start() {
+
+	for i := 0; i < b.validateWorkers; i++ {
+		go b.validate()
+		b.wgValidate.Add(1)
+	}
+
+	for i := 0; i < b.parseWorkers; i++ {
+		go b.parse()
+		b.wgParse.Add(1)
+	}
+
+	for i := 0; i < b.buySharesWorkers; i++ {
+		go b.buyShares()
+		b.wgBuyShares.Add(1)
+	}
+
+	for i := 0; i < b.buyMoneyWorkers; i++ {
+
+	}
+
+	for i := 0; i < b.sellSharesWorkers; i++ {
+		go b.sellShares()
+		b.wgSellShares.Add(1)
+	}
+
+	for i := 0; i < b.joinWorkers; i++ {
+		go b.join()
+		b.wgJoin.Add(1)
+	}
+
+	for i := 0; i < b.statsWorkers; i++ {
+		go b.stats()
+		b.wgStats.Add(1)
+	}
+
+	for i := 0; i < b.helpWorkers; i++ {
+		go b.help()
+		b.wgHelp.Add(1)
+	}
 
 }
 
@@ -71,43 +109,6 @@ func (b *BotPipeline) parse() {
 		case Help:
 			b.helpChan <- msg
 		}
-	}
-}
-
-func (b *BotPipeline) buyShares() {
-	for msg := range b.buySharesChan {
-		parsed := msg.Content[1:len(msg.Content)]
-		tokenized := strings.Split(parsed, " ")
-
-		ticker, quantityFloat, err := extractTickerQuantity(tokenized)
-		if err != nil {
-			b.botClient.SendMessage(msg.ChannelID, err.Error())
-			continue
-		}
-
-		user, err := b.db.GetUser(msg.Author.ID)
-		if err != nil {
-			b.botClient.SendMessage(msg.ChannelID, err.Error())
-			continue
-		}
-
-		stock, err := b.stockAPI.GetStockData(ticker)
-		if err != nil {
-			b.botClient.SendMessage(msg.ChannelID, err.Error())
-			continue
-		}
-
-		totalCost := stock.Current * quantityFloat
-
-		if totalCost > user.LiquidValue {
-			b.botClient.SendMessage(msg.ChannelID, "Not enough liquidity")
-			continue
-		}
-
-		user.LiquidValue -= totalCost
-		user.StockData[ticker] += quantityFloat
-
-		b.botClient.SendMessage(msg.ChannelID, fmt.Sprintf("Liquidity: $%.2f, Assets $%.2f", user.LiquidValue, user.AssetValue))
 	}
 }
 
