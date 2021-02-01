@@ -3,7 +3,6 @@ package models
 type User struct {
 	ID          string
 	LiquidValue float64
-	AssetValue  float64
 	TotalValue  float64
 	StockData   map[string]float64
 }

@@ -5,6 +5,7 @@
 ## Dependencies
 * Postgres - I recommend using docker to host a local instance, https://hub.docker.com/_/postgres
 * Discord bot with token - https://discord.com/developers/applications
+* Finnhub API token - https://finnhub.io/
 
 ## Running
 The following env vars are needed to run
