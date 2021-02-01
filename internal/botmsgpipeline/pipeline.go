@@ -37,7 +37,8 @@ func (b *BotPipeline) Start() {
 	}
 
 	for i := 0; i < b.buyMoneyWorkers; i++ {
-
+		go b.buyMoney()
+		b.wgBuyMoney.Add(1)
 	}
 
 	for i := 0; i < b.sellSharesWorkers; i++ {
