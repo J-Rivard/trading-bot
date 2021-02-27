@@ -7,6 +7,11 @@ import (
 
 func (b *BotPipeline) buyShares() {
 	for msg := range b.buySharesChan {
+		if !isValidTradingTime() {
+			b.botClient.SendMessage(msg.ChannelID, "Markets are currently closed")
+			continue
+		}
+
 		parsed := msg.Content[1:len(msg.Content)]
 		tokenized := strings.Split(parsed, " ")
 
@@ -44,12 +49,17 @@ func (b *BotPipeline) buyShares() {
 			continue
 		}
 
-		b.botClient.SendMessage(msg.ChannelID, fmt.Sprintf("Remaining balance: %.2f", user.LiquidValue))
+		b.botClient.SendMessage(msg.ChannelID, fmt.Sprintf("Remaining balance: %.6f", user.LiquidValue))
 	}
 }
 
 func (b *BotPipeline) buyMoney() {
 	for msg := range b.buyMoneyChan {
+		if !isValidTradingTime() {
+			b.botClient.SendMessage(msg.ChannelID, "Markets are currently closed")
+			continue
+		}
+
 		parsed := msg.Content[1:len(msg.Content)]
 		tokenized := strings.Split(parsed, " ")
 
@@ -87,6 +97,6 @@ func (b *BotPipeline) buyMoney() {
 			continue
 		}
 
-		b.botClient.SendMessage(msg.ChannelID, fmt.Sprintf("Purchased %.2f shares\nRemaining balance: %.2f", quantityToBuy, user.LiquidValue))
+		b.botClient.SendMessage(msg.ChannelID, fmt.Sprintf("Purchased %.6f shares\nRemaining balance: %.6f", quantityToBuy, user.LiquidValue))
 	}
 }

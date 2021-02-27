@@ -1,7 +1,9 @@
 package botmsgpipeline
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/J-Rivard/trading-bot/internal/logging"
 	"github.com/J-Rivard/trading-bot/internal/models"
@@ -101,4 +103,36 @@ func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *d
 		wgHelp:      &sync.WaitGroup{},
 		helpWorkers: 10,
 	}, nil
+}
+
+func isValidTradingTime() bool {
+	loc, err := time.LoadLocation("NYC")
+	if err != nil {
+		return false
+	}
+
+	now := time.Now().In(loc)
+
+	startString := fmt.Sprintf("%d-%d-%dT09:30:00.00Z", now.Year(), now.Month(), now.Day())
+	endString := fmt.Sprintf("%d-%d-%dT04:00:00.00Z", now.Year(), now.Month(), now.Day())
+
+	start, err := time.Parse(time.RFC3339, startString)
+	if err != nil {
+		return false
+	}
+	end, err := time.Parse(time.RFC3339, endString)
+	if err != nil {
+		return false
+	}
+
+	// If saturday or sunday
+	if now.Weekday() == 6 || now.Weekday() == 0 {
+		return false
+	}
+
+	if now.After(start) && now.Before(end) {
+		return true
+	}
+
+	return false
 }

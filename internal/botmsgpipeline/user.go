@@ -39,15 +39,15 @@ Loop:
 				continue Loop
 			}
 
-			stockString += fmt.Sprintf("%s: %.2f shares, $%.2f\n", k, v, stock.Current*v)
+			stockString += fmt.Sprintf("%s: %.6f shares, $%.6f\n", k, v, stock.Current*v)
 			totalAsset += stock.Current * v
 		}
 
 		b.botClient.SendMessage(msg.ChannelID,
 			fmt.Sprintf(
-				fmt.Sprintf("Current valuation: %.2f\n", user.LiquidValue+totalAsset)+
-					fmt.Sprintf("Liquidity: %.2f\n", user.LiquidValue)+
-					fmt.Sprintf("Asset value: %.2f\n", totalAsset)+
+				fmt.Sprintf("Current valuation: %.6f\n", user.LiquidValue+totalAsset)+
+					fmt.Sprintf("Liquidity: %.6f\n", user.LiquidValue)+
+					fmt.Sprintf("Asset value: %.6f\n", totalAsset)+
 					fmt.Sprintf("Stocks: %s\n", stockString),
 			),
 		)
