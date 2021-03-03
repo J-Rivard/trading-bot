@@ -125,8 +125,8 @@ func isValidTradingTime() bool {
 		monthString = fmt.Sprintf("0%d", now.Month())
 	}
 
-	startString := fmt.Sprintf("%d-%s-%sT09:30:00.00Z", now.Year(), monthString, dayString)
-	endString := fmt.Sprintf("%d-%s-%sT04:00:00.00Z", now.Year(), monthString, dayString)
+	startString := fmt.Sprintf("%d-%s-%sT09:30:00.00-05:00", now.Year(), monthString, dayString)
+	endString := fmt.Sprintf("%d-%s-%sT16:00:00.00-05:00", now.Year(), monthString, dayString)
 
 	start, err := time.Parse(time.RFC3339, startString)
 	if err != nil {
@@ -143,6 +143,10 @@ func isValidTradingTime() bool {
 	if now.Weekday() == 6 || now.Weekday() == 0 {
 		return false
 	}
+
+	fmt.Println(now)
+	fmt.Println(end)
+	fmt.Println(now.After(start), now.Before(end.In(loc)))
 
 	if now.After(start) && now.Before(end) {
 		return true
