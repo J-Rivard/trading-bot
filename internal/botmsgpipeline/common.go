@@ -106,22 +106,36 @@ func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *d
 }
 
 func isValidTradingTime() bool {
-	loc, err := time.LoadLocation("NYC")
+	loc, err := time.LoadLocation("EST")
 	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 
 	now := time.Now().In(loc)
 
-	startString := fmt.Sprintf("%d-%d-%dT09:30:00.00Z", now.Year(), now.Month(), now.Day())
-	endString := fmt.Sprintf("%d-%d-%dT04:00:00.00Z", now.Year(), now.Month(), now.Day())
+	dayString := ""
+	monthString := ""
+
+	if now.Day() < 10 {
+		dayString = fmt.Sprintf("0%d", now.Day())
+	}
+
+	if now.Month() < 10 {
+		monthString = fmt.Sprintf("0%d", now.Month())
+	}
+
+	startString := fmt.Sprintf("%d-%s-%sT09:30:00.00Z", now.Year(), monthString, dayString)
+	endString := fmt.Sprintf("%d-%s-%sT04:00:00.00Z", now.Year(), monthString, dayString)
 
 	start, err := time.Parse(time.RFC3339, startString)
 	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 	end, err := time.Parse(time.RFC3339, endString)
 	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 
