@@ -79,9 +79,9 @@ func (b *BotPipeline) validate() {
 			if len(tokenized) < 1 {
 				continue
 			}
+			b.parseChan <- msg
 		}
 
-		b.parseChan <- msg
 	}
 }
 
