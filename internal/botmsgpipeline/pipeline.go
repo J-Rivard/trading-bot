@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Prefix    = "!"
+	Prefix    = "$"
 	BuyShares = "BUY"
 	BuyMoney  = "BUYMONEY"
 	Sell      = "SELL"
