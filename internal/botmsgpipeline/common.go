@@ -114,8 +114,8 @@ func isValidTradingTime() bool {
 
 	now := time.Now().In(loc)
 
-	dayString := ""
-	monthString := ""
+	dayString := fmt.Sprintf("%d", now.Day())
+	monthString := fmt.Sprintf("%d", now.Month())
 
 	if now.Day() < 10 {
 		dayString = fmt.Sprintf("0%d", now.Day())
