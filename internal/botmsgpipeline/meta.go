@@ -7,6 +7,7 @@ func (b *BotPipeline) help() {
 			"$buy <ticker> <quantity>\n"+
 			"$buymoney <ticker> <dollars>\n"+
 			"$sell <ticker> <quantity>\n"+
+			"$pc <ticker>\n"+
 			"$stats")
 	}
 }

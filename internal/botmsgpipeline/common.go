@@ -2,6 +2,8 @@ package botmsgpipeline
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -29,6 +31,8 @@ type BotPipeline struct {
 	stockAPI  IStockAPI
 	db        IDatabase
 	logger    *logging.Log
+
+	channelIds []string
 
 	validateChan    chan *discordgo.MessageCreate
 	wgValidate      *sync.WaitGroup
@@ -61,6 +65,10 @@ type BotPipeline struct {
 	helpChan    chan *discordgo.MessageCreate
 	wgHelp      *sync.WaitGroup
 	helpWorkers int
+
+	pcChan    chan *discordgo.MessageCreate
+	wgPc      *sync.WaitGroup
+	pcWorkers int
 }
 
 func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *discordgo.MessageCreate, log *logging.Log) (*BotPipeline, error) {
@@ -70,6 +78,8 @@ func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *d
 		stockAPI:  stockAPI,
 		db:        db,
 		logger:    log,
+
+		channelIds: strings.Split(os.Getenv("channel_ids"), ","),
 
 		validateChan:    inbound,
 		wgValidate:      &sync.WaitGroup{},
@@ -102,6 +112,10 @@ func New(botClient IBotClient, stockAPI IStockAPI, db IDatabase, inbound chan *d
 		helpChan:    make(chan *discordgo.MessageCreate),
 		wgHelp:      &sync.WaitGroup{},
 		helpWorkers: 10,
+
+		pcChan:    make(chan *discordgo.MessageCreate),
+		wgPc:      &sync.WaitGroup{},
+		pcWorkers: 10,
 	}, nil
 }
 
@@ -152,5 +166,14 @@ func isValidTradingTime() bool {
 		return true
 	}
 
+	return false
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
 	return false
 }

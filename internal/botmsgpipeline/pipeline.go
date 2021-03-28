@@ -2,6 +2,7 @@ package botmsgpipeline
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -14,6 +15,7 @@ const (
 	Join      = "JOIN"
 	Stats     = "STATS"
 	Help      = "HELP"
+	Pc        = "PC"
 
 	stonksChannelID    = "804809948583559220"
 	stonksDevChannelID = "804911890484428830"
@@ -61,11 +63,17 @@ func (b *BotPipeline) Start() {
 		b.wgHelp.Add(1)
 	}
 
+	for i := 0; i < b.pcWorkers; i++ {
+		go b.priceCheck()
+		b.wgPc.Add(1)
+	}
+
 }
 
 func (b *BotPipeline) validate() {
 	for msg := range b.validateChan {
-		if !(msg.ChannelID == stonksChannelID || msg.ChannelID == stonksDevChannelID) {
+		if !stringInSlice(msg.ChannelID, b.channelIds) {
+			fmt.Println(msg.ChannelID, b.channelIds)
 			continue
 		}
 
@@ -109,6 +117,9 @@ func (b *BotPipeline) parse() {
 
 		case Help:
 			b.helpChan <- msg
+
+		case Pc:
+			b.pcChan <- msg
 		}
 	}
 }
